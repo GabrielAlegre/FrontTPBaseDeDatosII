@@ -10,26 +10,14 @@ export class TicketsComponent {
   tickets: any[] = [];
   esProject = false;
   esGroup = false;
+  verHoraConMasTrabajo = false;
+  verDesperfectoPorZona=false;
   
 
   constructor(private ticketService: TicketsService) {
 
    }
 
-  //TRAER TODOS LOS TICKETS
-  // cargarTickets(): void {
-  //   this.ticketService.traerTodos().subscribe(
-  //     (data) => {
-  //       console.log(data);
-  //       this.tickets = data;
-  //       this.infoSeleccionada = '';
-  //     },
-  //     (error) => {
-  //       console.error('Error al cargar tickets:', error);
-  //       this.infoSeleccionada = 'Error al cargar tickets.';
-  //     }
-  //   );
-  // }
   botones=[
     {
       descripcion:"Traer todos",
@@ -50,8 +38,8 @@ export class TicketsComponent {
       resultado: null,
     },
     {
-      descripcion:"Traer tickets pendientes de tipo alta",
-      operadorUtilizado:"($and)",
+      descripcion:"Tickets con prioridad 'Alta' y el estado en 'pendiente'.",
+      operadorUtilizado:"($and - $expr)",
       link: "https://tp-ticketera-six.vercel.app/api/tickets/and",
       resultado: null,
     },
@@ -59,6 +47,25 @@ export class TicketsComponent {
       descripcion:"Traer tickets resueltos o de tipo baja",
       operadorUtilizado:"($or)",
       link: "https://tp-ticketera-six.vercel.app/api/tickets/or",
+      resultado: null,
+    },
+    {
+      descripcion:"Traer tickets que NO son del tipo 'Desperfecto'",
+      operadorUtilizado:"($not)",
+      link: "https://tp-ticketera-six.vercel.app/api/tickets/not",
+      resultado: null,
+    }  ,
+    {
+      descripcion:"Encontrar tickets con prioridad Media o Baja",
+      operadorUtilizado:"($in)",
+      link: "https://tp-ticketera-six.vercel.app/api/tickets/in",
+      resultado: null,
+    }
+    ,
+    {
+      descripcion:"Traer tickets que no tengan como beneficio 'Netflix' NI 'Amazon prime'",
+      operadorUtilizado:"($nin)",
+      link: "https://tp-ticketera-six.vercel.app/api/tickets/nin",
       resultado: null,
     },
     {
@@ -124,13 +131,7 @@ export class TicketsComponent {
       link: "https://tp-ticketera-six.vercel.app/api/tickets/match",
       resultado: null,
     }
-    ,
-    {
-      descripcion:"Encontrar la cantidad Total de Beneficios",
-      operadorUtilizado:"($unwind, $group)",
-      link: "https://tp-ticketera-six.vercel.app/api/tickets/unwind",
-      resultado: null,
-    },
+   ,
     {
       descripcion:"Encontrar tickets donde el cliente es además empleado.",
       operadorUtilizado:"($lookup)",
@@ -138,9 +139,15 @@ export class TicketsComponent {
       resultado: null,
     },
     {
-      descripcion:"Tickets cuyas ubicaciones intersectan con la región alrededor de la UTN Mitre",
+      descripcion:"Tickets cuyas ubicaciones sean alrededor de la UTN Mitre",
       operadorUtilizado:"($geoIntersects)",
       link: "https://tp-ticketera-six.vercel.app/api/tickets/geoIntersects",
+      resultado: null,
+    },
+    {
+      descripcion:"Tickets cuyas ubicaciones sean en Cordoba",
+      operadorUtilizado:"($near)",
+      link: "https://tp-ticketera-six.vercel.app/api/tickets/near",
       resultado: null,
     },
     {
@@ -155,6 +162,69 @@ export class TicketsComponent {
       link: "https://tp-ticketera-six.vercel.app/api/tickets/geoWithin",
       resultado: null,
     }
+    ,
+    {
+      descripcion:"Tickets con desperfecto y la descripcion de lo que ocurre",
+      operadorUtilizado:"($eq)",
+      link: "https://tp-ticketera-six.vercel.app/api/tickets/ticketDesperfecto",
+      resultado: null,
+    }
+    ,
+    {
+      descripcion:"Ver a que hora hay mas trabajo",
+      operadorUtilizado:"($group)",
+      link: "https://tp-ticketera-six.vercel.app/api/tickets/horas",
+      resultado: null,
+    }
+    ,
+    {
+      descripcion:"Encontrar la cantidad Total de Beneficios",
+      operadorUtilizado:"($unwind, $group)",
+      link: "https://tp-ticketera-six.vercel.app/api/tickets/unwind",
+      resultado: null,
+    }
+    ,
+    {
+      descripcion:"que empleado atiende más ticket",
+      operadorUtilizado:"($group - $unwind)",
+      link: "https://tp-ticketera-six.vercel.app/api/tickets/masAtiende",
+      resultado: null,
+    }
+    ,
+    {
+      descripcion:"En qué zona tenemos más clientes",
+      operadorUtilizado:"($group - $limit)",
+      link: "https://tp-ticketera-six.vercel.app/api/tickets/zonaConMasClientes",
+      resultado: null,
+    }
+    ,
+    {
+      descripcion:"Ver desperfecto por zona",
+      operadorUtilizado:"($group - $match)",
+      link: "https://tp-ticketera-six.vercel.app/api/tickets/desperfectoPorZona",
+      resultado: null,
+    }
+    ,
+    {
+      descripcion:"Cantidad de atención hecha por zona,",
+      operadorUtilizado:"($group - $sort)",
+      link: "https://tp-ticketera-six.vercel.app/api/tickets/atencionPorZona",
+      resultado: null,
+    }
+    ,
+    {
+      descripcion:"Cliente que ha generado mas tickets",
+      operadorUtilizado:"($group - $sort - $limit)",
+      link: "https://tp-ticketera-six.vercel.app/api/tickets/clienteMasTicket",
+      resultado: null,
+    }
+    ,
+    {
+      descripcion:"Clientes con tickets sin resolver",
+      operadorUtilizado:"($group - $sort - $match)",
+      link: "https://tp-ticketera-six.vercel.app/api/tickets/clienteTicketSinResolver",
+      resultado: null,
+    }
   ]
 
   traerResultado(boton : any){
@@ -165,6 +235,13 @@ export class TicketsComponent {
     else{
       this.esProject=false;
     }
+    if(boton.link=="https://tp-ticketera-six.vercel.app/api/tickets/desperfectoPorZona")
+    {
+      this.verDesperfectoPorZona=true;
+    }
+    else{
+      this.verDesperfectoPorZona=false;
+    }
 
     if(boton.link=="https://tp-ticketera-six.vercel.app/api/tickets/unwind")
     {
@@ -173,6 +250,16 @@ export class TicketsComponent {
     else{
       this.esGroup=false;
     }
+
+    if(boton.link=="https://tp-ticketera-six.vercel.app/api/tickets/horas" || boton.link=="https://tp-ticketera-six.vercel.app/api/tickets/masAtiende"
+    || boton.link=="https://tp-ticketera-six.vercel.app/api/tickets/zonaConMasClientes" || boton.link=="https://tp-ticketera-six.vercel.app/api/tickets/atencionPorZona"
+    || boton.link=="https://tp-ticketera-six.vercel.app/api/tickets/clienteMasTicket" || boton.link=="https://tp-ticketera-six.vercel.app/api/tickets/clienteTicketSinResolver")
+    {
+      this.verHoraConMasTrabajo=true;
+    }else{
+      this.verHoraConMasTrabajo=false;
+    }
+
     this.botones.forEach(boton => {
       boton.resultado = null;
     });
