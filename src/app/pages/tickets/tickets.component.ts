@@ -12,7 +12,7 @@ export class TicketsComponent {
   esGroup = false;
   verHoraConMasTrabajo = false;
   verDesperfectoPorZona=false;
-  
+  spinner: boolean = false;
 
   constructor(private ticketService: TicketsService) {
 
@@ -228,6 +228,7 @@ export class TicketsComponent {
   ]
 
   traerResultado(boton : any){
+    this.spinner=true;
     if(boton.link=="https://tp-ticketera-six.vercel.app/api/tickets/match")
     {
       this.esProject=true;
@@ -266,6 +267,8 @@ export class TicketsComponent {
 
     this.ticketService.getData(boton.link).subscribe((datos : any)=>{
       this.tickets = datos;
+      this.spinner=false;
+
     });
     console.log(this.tickets);
   }

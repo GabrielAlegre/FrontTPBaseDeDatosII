@@ -7,6 +7,7 @@ import { TicketsComponent } from './pages/tickets/tickets.component';
 import { NavbarComponent } from './pages/navbar/navbar.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { LoadingComponent } from './pages/loading/loading.component';
 
 
 @NgModule({
@@ -14,6 +15,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     AppComponent,
     TicketsComponent,
     NavbarComponent,
+    LoadingComponent,
 
   ],
   imports: [
